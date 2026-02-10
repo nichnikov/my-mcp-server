@@ -1,0 +1,118 @@
+---
+description: Python coding standards, Clean Architecture, and AI agent best practices for this project
+globs: **/*.py
+alwaysApply: false
+---
+
+# Стандарты разработки и архитектуры (Coding Standards & Architecture)
+
+## 1. Философия и Принципы
+Мы разрабатываем Enterprise-решение. Наш приоритет — **читаемость, поддерживаемость и надежность**. Код пишется один раз, а читается и меняется сотни раз.
+
+### Главные принципы:
+1.  **Code for Humans:** Код должен быть понятен джуниору без объяснений. Если нужен комментарий, объясняющий *что* делает код — перепиши код. Комментарии должны объяснять *почему* это сделано.
+2.  **Fail Fast:** Ошибки должны падать громко и сразу. Никаких пустых `try-except`.
+3.  **Explicit is better than implicit:** Явные типы, явные импорты, явные аргументы.
+
+---
+
+## 2. Архитектура (Clean Architecture)
+Мы строго следуем слоистой архитектуре.
+
+### Структура проекта
+```text
+my-ai-project/
+├── src/                  # ARTEFACT (Код для продакшена)
+│   ├── domain/           # Entities, Logic, Interfaces
+│   ├── application/      # Use Cases, Orchestration (LangGraph)
+│   ├── infrastructure/   # Adapters, Tools, DB, API
+│   └── main.py           # Entry point
+└── tests/                # SAFETY NET (Тесты)
+    ├── unit/             # Зеркало src/ (domain + application)
+    ├── integration/      # Infrastructure tests (DB, API)
+    ├── e2e/              # Black box tests
+    └── evals/            # AI evaluations (LLM-as-a-Judge)
+```
+
+### Правило зависимостей (The Dependency Rule)
+Зависимости могут указывать **только внутрь**.
+*   ✅ `Infrastructure` -> зависит от -> `Application` -> зависит от -> `Domain`
+*   ❌ `Domain` -> зависит от -> `Infrastructure` (КАТЕГОРИЧЕСКИ ЗАПРЕЩЕНО)
+
+### Слои:
+1.  **Domain (Core):**
+    *   Содержит: Entities (dataclasses/Pydantic), Business Logic, Interfaces (Ports).
+    *   Запрещено: Использовать внешние библиотеки (HTTP, SQL, LangChain, OpenAI). Только чистый язык.
+2.  **Application (Use Cases):**
+    *   Содержит: Оркестрацию бизнес-логики.
+    *   Запрещено: Прямые запросы в БД или API. Только через интерфейсы из Domain.
+3.  **Infrastructure (Adapters):**
+    *   Содержит: Реализацию интерфейсов (RepositoryImpl, OpenAIClient), API Frameworks (FastAPI), DB drivers.
+
+---
+
+## 3. Правила написания кода (Code Style)
+
+### 3.1. SOLID (Жесткие требования)
+*   **S (SRP):** Один класс/функция — одна ответственность. Если в методе больше 50 строк, декомпозируйте его.
+*   **O (OCP):** Не используйте цепочки `if/elif` для бизнес-логики. Используйте полиморфизм или Strategy Pattern.
+*   **D (DIP):** Никогда не создавайте экземпляры классов `Infrastructure` внутри `Application`. Инжектируйте их через конструктор (`__init__`).
+
+### 3.2. Типизация (Type Safety)
+*   **Строгая типизация:** Все аргументы функций и возвращаемые значения должны быть типизированы.
+*   **Запрет Any:** Использование `Any` запрещено. Если тип неизвестен, используйте `Generic` или `Union`.
+*   **Pydantic:** Для всех структур данных используйте Pydantic модели.
+
+```python
+# ❌ BAD
+def process_data(data):
+    return data["value"] * 2
+
+# ✅ GOOD
+from pydantic import BaseModel
+
+class InputData(BaseModel):
+    value: int
+
+def process_data(data: InputData) -> int:
+    return data.value * 2
+```
+
+### 3.3. Именование (Naming)
+*   **Переменные/Функции:** `snake_case` (Python). Имена должны быть глаголами (`get_user`, `calculate_metric`).
+*   **Классы:** `PascalCase`. Существительные.
+*   **Интерфейсы:** Должны отражать поведение, а не реализацию.
+    *   ❌ `PostgresDatabase`
+    *   ✅ `UserRepository` (или `IUserRepository`)
+*   **Имплементации:** Суффикс указывает на технологию.
+    *   ✅ `PostgresUserRepository`
+
+---
+
+## 4. Специфика ИИ-Агентов (AI Specifics)
+
+### 4.1. Детерминизм и Изоляция
+*   Взаимодействие с LLM всегда должно быть скрыто за интерфейсом `ILanguageModelProvider`.
+*   Результат от LLM всегда считается "грязным". Он должен проходить валидацию (Pydantic / Guardrails) перед использованием в бизнес-логике.
+
+### 4.2. Промпты
+*   Промпты не хранятся в коде Python в виде строк. Они выносятся в отдельные файлы (`.txt`, `.yaml`) или в специальный класс-реестр.
+
+---
+
+## 5. Тестирование (Testing Strategy)
+
+*   **Unit Tests:** Обязательны для всех Use Cases и Domain Logic.
+    *   Используйте `pytest`.
+    *   Все внешние вызовы (БД, OpenAI) должны быть замоканы.
+*   **Integration Tests:** Для проверки репозиториев и API клиентов.
+*   **Запрет:** Нельзя коммитить код, который ломает тесты.
+
+---
+
+## 6. Git & Workflow
+*   **Ветки:** `feature/название-задачи` или `fix/название-бага`.
+*   **Коммиты:** Используем Conventional Commits.
+    *   `feat: add new agent skill`
+    *   `fix: resolve timeout issue`
+    *   `docs: update readme`

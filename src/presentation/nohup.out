@@ -1,0 +1,49 @@
+INFO:     Started server process [23132]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+INFO:     Uvicorn running on http://0.0.0.0:8000 (Press CTRL+C to quit)
+INFO:mcp_simple_server:New SSE connection attempt
+INFO:mcp_simple_server:SSE connection established, starting server loop
+INFO:     127.0.0.1:58636 - "GET /sse HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58642 - "POST /sse/messages?session_id=04695147551b47368b8fea625ac9102f HTTP/1.1" 307 Temporary Redirect
+INFO:     127.0.0.1:58642 - "POST /sse/messages/?session_id=04695147551b47368b8fea625ac9102f HTTP/1.1" 202 Accepted
+INFO:     127.0.0.1:58642 - "POST /sse/messages?session_id=04695147551b47368b8fea625ac9102f HTTP/1.1" 307 Temporary Redirect
+INFO:     127.0.0.1:58642 - "POST /sse/messages/?session_id=04695147551b47368b8fea625ac9102f HTTP/1.1" 202 Accepted
+INFO:     127.0.0.1:58642 - "POST /sse/messages?session_id=04695147551b47368b8fea625ac9102f HTTP/1.1" 307 Temporary Redirect
+INFO:     127.0.0.1:58642 - "POST /sse/messages/?session_id=04695147551b47368b8fea625ac9102f HTTP/1.1" 202 Accepted
+INFO:mcp.server.lowlevel.server:Processing request of type ListToolsRequest
+INFO:mcp_simple_server:Client requested tool list
+INFO:mcp_simple_server:SSE connection closed
+ERROR:    Exception in ASGI application
+Traceback (most recent call last):
+  File "/home/an/.local/lib/python3.10/site-packages/uvicorn/protocols/http/httptools_impl.py", line 409, in run_asgi
+    result = await app(  # type: ignore[func-returns-value]
+  File "/home/an/.local/lib/python3.10/site-packages/uvicorn/middleware/proxy_headers.py", line 60, in __call__
+    return await self.app(scope, receive, send)
+  File "/home/an/.local/lib/python3.10/site-packages/starlette/applications.py", line 107, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "/home/an/.local/lib/python3.10/site-packages/starlette/middleware/errors.py", line 186, in __call__
+    raise exc
+  File "/home/an/.local/lib/python3.10/site-packages/starlette/middleware/errors.py", line 164, in __call__
+    await self.app(scope, receive, _send)
+  File "/home/an/.local/lib/python3.10/site-packages/starlette/middleware/exceptions.py", line 63, in __call__
+    await wrap_app_handling_exceptions(self.app, conn)(scope, receive, send)
+  File "/home/an/.local/lib/python3.10/site-packages/starlette/_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "/home/an/.local/lib/python3.10/site-packages/starlette/_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "/home/an/.local/lib/python3.10/site-packages/starlette/routing.py", line 716, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "/home/an/.local/lib/python3.10/site-packages/starlette/routing.py", line 736, in app
+    await route.handle(scope, receive, send)
+  File "/home/an/.local/lib/python3.10/site-packages/starlette/routing.py", line 290, in handle
+    await self.app(scope, receive, send)
+  File "/home/an/.local/lib/python3.10/site-packages/starlette/routing.py", line 78, in app
+    await wrap_app_handling_exceptions(app, request)(scope, receive, send)
+  File "/home/an/.local/lib/python3.10/site-packages/starlette/_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "/home/an/.local/lib/python3.10/site-packages/starlette/_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "/home/an/.local/lib/python3.10/site-packages/starlette/routing.py", line 76, in app
+    await response(scope, receive, send)
+TypeError: 'NoneType' object is not callable
